@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 
 // middleware  techMaster  
@@ -30,8 +30,41 @@ async function run() {
 
         app.post('/addBlog', async (req, res) => {
             const blog = req.body;
-            console.log(blog);
+            
             const result = await blogCollection.insertOne(blog);
+            res.send(result);
+        })
+
+        app.get('/blogs', async (req, res) => {
+            const cursor = blogCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        app.get('/blogs/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await blogCollection.findOne(query);
+            res.send(result);
+        })
+
+        app.put('/updateBlog/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedBlog = req.body;
+            const blog = {
+                $set: {
+                    url: updatedBlog.url,
+                    blogName: updatedBlog.blogName,
+                    email: updatedBlog.email,
+                    category: updatedBlog.category,
+                    long_description: updatedBlog.long_description,
+                    short_description: updatedBlog.short_description
+                }
+            }
+
+            const result = await blogCollection.updateOne(filter, blog, options);
             res.send(result);
         })
 
