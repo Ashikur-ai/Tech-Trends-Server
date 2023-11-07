@@ -28,6 +28,7 @@ async function run() {
         await client.connect();
         const blogCollection = client.db('Blog_DB').collection('blogs');
         const wishListCollection = client.db('Blog_DB').collection('wishlist');
+        const commentCollection = client.db('Blog_DB').collection('comment');
 
         // for blog api 
         app.post('/addBlog', async (req, res) => {
@@ -92,6 +93,13 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await wishListCollection.deleteOne(query);
+            res.send(result);
+        })
+
+        // for comment 
+        app.post('/addComment', async (req, res) => {
+            const comment = req.body;
+            const result = await commentCollection.insertOne(comment);
             res.send(result);
         })
 
