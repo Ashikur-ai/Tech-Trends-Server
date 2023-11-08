@@ -9,7 +9,11 @@ require('dotenv').config();
 
 // middleware  techMaster  
 app.use(cors({
-    origin: ['http://localhost:5173'], //for host need to change
+    origin: [
+        // 'http://localhost:5173',
+        'https://tech-trends-9b550.web.app',
+        'https://tech-trends-9b550.firebaseapp.com'
+    ], 
     credentials: true
 }));
 app.use(express.json());
@@ -61,7 +65,7 @@ async function run() {
             res
                 .cookie('token', token, {
                     httpOnly: true,
-                    secure: false, //for host need to change to true
+                    secure: true, //for host need to change to true
                     
                 })
                 .send({success: true})
@@ -125,10 +129,10 @@ async function run() {
 
         })
 
-        app.get('/wishlist', verifyToken, async (req, res) => {
-            if (req.query.email !== req.user.email) {
-                return res.status(403).send({message: 'forbidden access'})
-            }
+        app.get('/wishlist', async (req, res) => {
+            // if (req.query.email !== req.user.email) {
+            //     return res.status(403).send({message: 'forbidden access'})
+            // }
             let query = {};
             if (req.query?.email) {
                 query = { user_email: req.query.email }
@@ -141,6 +145,14 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await wishListCollection.deleteOne(query);
+            res.send(result);
+        })
+
+        app.get('/wishlist/details/:id', async (req, res) => {
+            const id = req.params.id;
+            
+            const query = { _id: new ObjectId(id) }
+            const result = await wishListCollection.findOne(query);
             res.send(result);
         })
 
